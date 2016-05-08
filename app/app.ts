@@ -95,6 +95,7 @@ class ConferenceApp extends MeteorComponent {//
 
         if (page.title === 'Logout') {
             // Give the menu time to close before changing to logged out
+            this.nav.setRoot(LoginPage);
             setTimeout(() => {
                 this.userData.logout();
             }, 1000);
