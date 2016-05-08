@@ -88,18 +88,21 @@ class ConferenceApp extends MeteorComponent {//
         // we wouldn't want the back button to show in this scenario
         if (page.index) {
             this.nav.setRoot(page.component, { tabIndex: page.index });
-
+            
         } else {
-            this.nav.setRoot(page.component);
-        }
-
-        if (page.title === 'Logout') {
+             if (page.title === 'Logout') {
             // Give the menu time to close before changing to logged out
             this.nav.setRoot(LoginPage);
             setTimeout(() => {
+
                 this.userData.logout();
             }, 1000);
+            return;
         }
+            this.nav.setRoot(page.component);
+        }
+
+       
     }
 
     listenToLoginEvents() {
