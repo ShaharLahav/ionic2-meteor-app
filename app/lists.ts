@@ -1,0 +1,1 @@
+export var Lists = new Mongo.Collection<any>('lists');
