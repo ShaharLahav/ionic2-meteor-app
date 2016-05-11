@@ -1,13 +1,15 @@
 import {Injectable} from 'angular2/core';
 import {Http} from 'angular2/http';
-import {UserData} from './user-data';;
+import {UserData} from './user-data';
+import {MeteorComponent} from 'angular2-meteor';
+import {Lists} from '../lists'
 
 
 @Injectable()
-export class ConferenceData {
+export class ConferenceData extends MeteorComponent {
   data: any;
 
-  constructor(private http: Http, private user: UserData) {}
+  constructor(private http: Http, private user: UserData) { super(); }
 
   load() {
     if (this.data) {
@@ -73,32 +75,45 @@ export class ConferenceData {
     }
   }
 
-  getTimeline(dayIndex, queryText='', excludeTracks=[], segment='all') {
-    return this.load().then(data => {
-      let day = data.schedule[dayIndex];
-      day.shownSessions = 0;
 
-      queryText = queryText.toLowerCase().replace(/,|\.|-/g,' ');
-      let queryWords = queryText.split(' ').filter(w => !!w.trim().length);
+  getTimeline(queryText = '') {//dayIndex, queryText='', excludeTracks=[], segment='all'
+    if (queryText == '')
+      return Lists.find({}).fetch();
+    else {
+      let str = '.*' + queryText + '.*';
+      console.log(str);
+      return Lists.find({ "name": { "$regex": str } }).fetch();
+    }
 
-      day.groups.forEach(group => {
-        group.hide = true;
 
-        group.sessions.forEach(session => {
-          // check if this session should show or not
-          this.filterSession(session, queryWords, excludeTracks, segment);
+    // return this.load().then(data => {
+    //   let day = data.schedule[dayIndex];
+    //   day.shownSessions = 0;
 
-          if (!session.hide) {
-            // if this session is not hidden then this group should show
-            group.hide = false;
-            day.shownSessions++;
-          }
-        });
+    //   queryText = queryText.toLowerCase().replace(/,|\.|-/g,' ');
+    //   let queryWords = queryText.split(' ').filter(w => !!w.trim().length);
 
-      });
+    //   day.groups.forEach(group => {
+    //     group.hide = true;
 
-      return day;
-    });
+    //     group.sessions.forEach(session => {
+    //       // check if this session should show or not
+    //       this.filterSession(session, queryWords, excludeTracks, segment);
+
+    //       if (!session.hide) {
+    //         // if this session is not hidden then this group should show
+    //         group.hide = false;
+    //         day.shownSessions++;
+    //       }
+    //     });
+
+    //   });
+
+    //   return day;
+    // });
+
+
+
   }
 
   filterSession(session, queryWords, excludeTracks, segment) {

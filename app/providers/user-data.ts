@@ -8,8 +8,11 @@ export class UserData {
   HAS_LOGGED_IN = 'hasLoggedIn';
   storage = new Storage(LocalStorage);
   emailemail:"emailemail";
+  public UserEmail:string;
 
-  constructor(private events: Events) {}
+  constructor(private events: Events) {
+    this.storage.get(this.emailemail).then(value=>{this.UserEmail =  value;});;
+  }
 
   hasFavorite(sessionName) {
     return (this._favorites.indexOf(sessionName) > -1);
@@ -29,17 +32,22 @@ export class UserData {
   login(email) {
     this.storage.set(this.HAS_LOGGED_IN, true);
     this.storage.set(this.emailemail,email);
+    this.UserEmail = email;
     this.events.publish('user:login');
   }
 
   signup(email) {
     this.storage.set(this.HAS_LOGGED_IN, true);
-    this.storage.set(this.emailemail,email);    
+    this.storage.set(this.emailemail,email);   
+    this.UserEmail = email;
+     
     this.events.publish('user:signup');
   }
 
   logout() {
     this.storage.remove(this.HAS_LOGGED_IN);
+    this.UserEmail = '';
+    
     this.events.publish('user:logout');
   }
 

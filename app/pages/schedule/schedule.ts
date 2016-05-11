@@ -15,14 +15,20 @@ export class SchedulePage {
   excludeTracks = [];
   shownSessions = [];
   groups = [];
-
+  lists = [];
+  _UserEmail:string;
   constructor(
     private app: IonicApp,
     private nav: NavController,
     private confData: ConferenceData,
     private user: UserData
   ) {
-    this.updateSchedule();
+    // this.updateSchedule();
+    this.lists=this.confData.getTimeline();   
+    console.log("-------------------------------------------------------");
+    console.log(this.lists); 
+    this._UserEmail = user.UserEmail;
+    console.log(this._UserEmail);
   }
 
   onPageDidEnter() {
@@ -30,10 +36,11 @@ export class SchedulePage {
   }
 
   updateSchedule() {
-    this.confData.getTimeline(this.dayIndex, this.queryText, this.excludeTracks, this.segment).then(data => {
-      this.shownSessions = data.shownSessions;
-      this.groups = data.groups;
-    });
+    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    console.log(this.queryText);
+    this.lists=this.confData.getTimeline(this.queryText);
+    console.log(this.lists);
+    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++=+");
   }
 
   presentFilter() {
