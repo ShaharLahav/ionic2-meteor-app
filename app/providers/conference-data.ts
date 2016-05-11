@@ -76,7 +76,9 @@ export class ConferenceData extends MeteorComponent {
   }
 
 
-  getTimeline(queryText = '') {//dayIndex, queryText='', excludeTracks=[], segment='all'
+  getTimeline(queryText = '', segment='all') {//dayIndex, queryText='', excludeTracks=[], segment='all'
+    if (segment != 'all')
+      return Lists.find({ "owner": this.user.UserEmail }).fetch();
     if (queryText == '')
       return Lists.find({}).fetch();
     else {

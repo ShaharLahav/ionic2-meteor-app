@@ -3,32 +3,55 @@ import {ConferenceData} from '../../providers/conference-data';
 import {UserData} from '../../providers/user-data';
 import {ScheduleFilterPage} from '../schedule-filter/schedule-filter';
 import {SessionDetailPage} from '../session-detail/session-detail';
+import {InputModalPage} from '../input-modal/input-modal'
+import {NgZone} from "angular2/core";
+import {MeteorComponent} from 'angular2-meteor'
+import {Lists} from '../../lists'
 
 
 @Page({
   templateUrl: 'build/pages/schedule/schedule.html'
 })
-export class SchedulePage {
+export class SchedulePage extends MeteorComponent {
   dayIndex = 0;
   queryText = '';
   segment = 'all';
   excludeTracks = [];
   shownSessions = [];
   groups = [];
-  lists = [];
-  _UserEmail:string;
+  // public myData:Mongo.Cursor<any>;
+  lists: Mongo.Cursor<any>;
+  _UserEmail: string;
   constructor(
     private app: IonicApp,
     private nav: NavController,
     private confData: ConferenceData,
-    private user: UserData
+    private user: UserData,
+    private zone: NgZone
   ) {
+    super();
     // this.updateSchedule();
-    this.lists=this.confData.getTimeline();   
+    // this.lists = this.confData.getTimeline();
+    this.updateSchedule();
     console.log("-------------------------------------------------------");
-    console.log(this.lists); 
+    console.log(this.lists);
     this._UserEmail = user.UserEmail;
     console.log(this._UserEmail);
+
+    this.zone = new NgZone({ enableLongStackTrace: false });
+
+    this.autorun(() => {
+      this.zone.run(() => {
+        console.log("------------------------------------------------------");
+      });
+    });
+
+
+    // this.autorun(() => {
+    //   if (this.myData !== undefined)
+    //     this.lists = this.myData.fetch();
+    // });
+
   }
 
   onPageDidEnter() {
@@ -36,11 +59,28 @@ export class SchedulePage {
   }
 
   updateSchedule() {
-    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    console.log(this.queryText);
-    this.lists=this.confData.getTimeline(this.queryText);
-    console.log(this.lists);
-    console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++=+");
+    //sadasd
+    // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    // console.log(this.queryText);
+    // this.lists = this.confData.getTimeline(this.queryText, this.segment);
+    // console.log(this.lists);
+    // console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++=+");
+    console.log(this.segment);
+    if (this.segment === 'favorites') {
+      console.log("Im in")
+      this.lists = Lists.find({ "owner": this.user.UserEmail });
+      // console.log(this.lists.fetch());
+    }
+    else if (this.queryText == '')
+      this.lists = Lists.find({});
+    else {
+      let str = '.*' + this.queryText + '.*';
+      console.log(str);
+      this.lists = Lists.find({ "name": { "$regex": str } });
+    }
+    // this.lists = this.myData.fetch();
+    // console.log(this.myData.fetch());
+
   }
 
   presentFilter() {
@@ -113,6 +153,11 @@ export class SchedulePage {
       this.nav.present(alert);
     }
 
+  }
+
+  openModal() {
+    let modal = Modal.create(InputModalPage, { "email": this._UserEmail });
+    this.nav.present(modal);
   }
 
 }
